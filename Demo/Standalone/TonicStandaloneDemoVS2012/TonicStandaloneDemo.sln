@@ -8,6 +8,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TonicStandaloneDemo", "Toni
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TonicLib", "..\..\..\lib\TonicLibVS2012\TonicLib.vcxproj", "{DA022B2D-D880-4BAB-9CDF-B916F7B6879E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PolyMIDIDemo", "PolyMIDIDemo\PolyMIDIDemo.vcxproj", "{2FCEF422-DF19-4F2E-BA2F-B019A0233D24}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -22,6 +24,10 @@ Global
 		{DA022B2D-D880-4BAB-9CDF-B916F7B6879E}.Debug|Win32.Build.0 = Debug|Win32
 		{DA022B2D-D880-4BAB-9CDF-B916F7B6879E}.Release|Win32.ActiveCfg = Release|Win32
 		{DA022B2D-D880-4BAB-9CDF-B916F7B6879E}.Release|Win32.Build.0 = Release|Win32
+		{2FCEF422-DF19-4F2E-BA2F-B019A0233D24}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2FCEF422-DF19-4F2E-BA2F-B019A0233D24}.Debug|Win32.Build.0 = Debug|Win32
+		{2FCEF422-DF19-4F2E-BA2F-B019A0233D24}.Release|Win32.ActiveCfg = Release|Win32
+		{2FCEF422-DF19-4F2E-BA2F-B019A0233D24}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
