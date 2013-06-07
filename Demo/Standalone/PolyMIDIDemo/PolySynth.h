@@ -13,10 +13,10 @@ using namespace Tonic;
 class PolySynth : public Synth
 {
 public:
-	typedef Synth (VoiceCreateFn)(ControlGenerator, ControlTrigger);
+	typedef Synth (VoiceCreateFn)();
 	
 	PolySynth();	
-	void addVoice(VoiceCreateFn createFn);
+	void addVoice(Synth voice);
 	void addVoices(VoiceCreateFn createFn, int count);
 	void processMidiNote(int note, int velocity);
 
@@ -25,8 +25,6 @@ public:
 	public:
 		bool playing;
 		int currentNote;
-		ControlMidiToFreq frequency;
-		ControlTrigger trigger;
 		Synth synth;
 		int voiceNumber;
 	};

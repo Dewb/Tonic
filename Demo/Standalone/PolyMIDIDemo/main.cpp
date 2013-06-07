@@ -18,12 +18,13 @@ using namespace Tonic;
 
 const unsigned int nChannels = 2;
 
+static Synth synth;
 static PolySynth poly;
 
 int renderCallback( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
         double streamTime, RtAudioStreamStatus status, void *userData )
 {
-    poly.fillBufferOfFloats((float*)outputBuffer, nBufferFrames, nChannels);
+    synth.fillBufferOfFloats((float*)outputBuffer, nBufferFrames, nChannels);
     return 0;
 }
 
@@ -44,9 +45,15 @@ void midiCallback(double deltatime, vector<unsigned char>* msg, void* userData)
 	}
 }
 
-Synth createSynthVoice(ControlGenerator voiceFreq, ControlTrigger voiceTrigger)
+Synth createSynthVoice()
 {
 	Synth newSynth;
+
+	ControlParameter noteNum = newSynth.addParameter("polyNote", 0.0);
+	ControlParameter gate = newSynth.addParameter("polyGate", 0.0);
+	ControlParameter noteVelocity = newSynth.addParameter("polyVelocity", 0.0);
+
+	ControlMidiToFreq voiceFreq = ControlMidiToFreq().input(noteNum);
 
 	Generator tone = SquareWave().freq(voiceFreq) * SineWave().freq(50);
     
@@ -56,13 +63,13 @@ Synth createSynthVoice(ControlGenerator voiceFreq, ControlTrigger voiceTrigger)
     .sustain(0.8)
     .release(0.6)
     .doesSustain(true)
-    .trigger(voiceTrigger);
+    .trigger(gate);
    
-    ControlGenerator filterFreq = voiceFreq * 0.25 + 200;
+    ControlGenerator filterFreq = voiceFreq * 0.5 + 200;
     
-    LPF24 filter = LPF24().Q(2).cutoff( filterFreq );
+    LPF24 filter = LPF24().Q(1.0 + noteVelocity * 0.02).cutoff( filterFreq );
 
-	Generator output = (( tone * env ) >> filter) * 0.2;
+	Generator output = (( tone * env ) >> filter) * (0.02 + noteVelocity * 0.005);
 
 	newSynth.setOutputGen(output);
 
@@ -87,7 +94,16 @@ int main(int argc, const char * argv[])
     Tonic::setSampleRate(sampleRate);
     
 	poly.addVoices(createSynthVoice, 8);
- 
+	
+	StereoDelay delay = StereoDelay(3.0f,3.0f)
+    .delayTimeLeft( 0.25 + SineWave().freq(0.2) * 0.01)
+    .delayTimeRight(0.30 + SineWave().freq(0.23) * 0.01)
+    .feedback(0.4)
+    .dryLevel(0.8)
+    .wetLevel(0.2);
+
+	synth.setOutputGen(poly >> delay);
+
     // open rtaudio stream and rtmidi port
     try {
 		if (midiIn->getPortCount() == 0) {

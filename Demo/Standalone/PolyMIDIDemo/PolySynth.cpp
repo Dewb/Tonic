@@ -14,12 +14,11 @@ PolySynth::PolySynth()
 	setOutputGen(mixer);
 }
 
-void PolySynth::addVoice(VoiceCreateFn createFn)
+void PolySynth::addVoice(Synth synth)
 {
 	VoiceData v;
-	v.frequency.input(ControlValue(0));
 	v.voiceNumber = voiceData.size();
-	v.synth = createFn(v.frequency, v.trigger);
+	v.synth = synth;
 	v.playing = false;
 	v.currentNote = 0;
 
@@ -31,7 +30,7 @@ void PolySynth::addVoice(VoiceCreateFn createFn)
 void PolySynth::addVoices(VoiceCreateFn createFn, int count)
 {
 	for (int i = 0; i < count; i++)
-		addVoice(createFn);
+		addVoice(createFn());
 }
 
 void PolySynth::processMidiNote(int note, int velocity)
@@ -43,17 +42,21 @@ void PolySynth::processMidiNote(int note, int velocity)
 		return;
 	
 	cout << ">> " << (noteOn ? "Starting" : "Stopping") << " note " << note << " on voice " << pVoice->voiceNumber << "\n";
-	pVoice->frequency.input(ControlValue(note));
 
+	pVoice->synth.setParameter("polyNote", note);
+	pVoice->synth.setParameter("polyGate", noteOn ? 1.0 : 0.0);
 	pVoice->playing = noteOn;
-	pVoice->trigger.trigger(noteOn ? 1.0 : 0.0);
 	pVoice->currentNote = note;
 
 	if (noteOn)
+	{
+		pVoice->synth.setParameter("polyVelocity", velocity);
 		unusedVoices.remove(pVoice->voiceNumber);
+	}
 	else
+	{
 		unusedVoices.push_back(pVoice->voiceNumber);
-
+	}
 }
 
 PolySynth::VoiceData* PolySynth::getVoiceForNote(int note, bool noteOn)
