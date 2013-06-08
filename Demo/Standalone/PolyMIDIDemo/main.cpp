@@ -6,7 +6,6 @@
 //
 //
 
-
 #include <iostream>
 #include "Tonic.h"
 #include "RtAudio.h"
@@ -34,13 +33,13 @@ void midiCallback(double deltatime, vector<unsigned char>* msg, void* userData)
     int msgtype = (*msg)[0] & 0xf0;
     int b1 =  (*msg)[1];
     int b2 =  (*msg)[2];
-    static int lastPat = 0;
+
     if (msgtype == 0x80 || (msgtype == 0x90 && b2 == 0)) {
-        std::cout << "MIDI Note OFF  N: " << b1 << std::endl;
+        std::cout << "MIDI Note OFF  C: " << chan << " N: " << b1 << std::endl;
         poly.noteOff(b1);
     }
     else if (msgtype == 0x90) {
-        std::cout << "MIDI Note ON   N: " << b1 << " V: " << b2 << std::endl;
+        std::cout << "MIDI Note ON   C: " << chan << " N: " << b1 << " V: " << b2 << std::endl;
         poly.noteOn(b1, b2);
     }
 }
@@ -80,7 +79,7 @@ Synth createSynthVoice()
 
 
 int main(int argc, const char * argv[])
-{
+{    
     // Configure RtAudio
     RtAudio dac;
     RtAudio::StreamParameters rtParams;
