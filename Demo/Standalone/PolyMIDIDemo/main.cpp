@@ -19,7 +19,7 @@ using namespace Tonic;
 const unsigned int nChannels = 2;
 
 static Synth synth;
-static PolySynth<> poly;
+static PolySynth poly;
 
 int renderCallback( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
         double streamTime, RtAudioStreamStatus status, void *userData )

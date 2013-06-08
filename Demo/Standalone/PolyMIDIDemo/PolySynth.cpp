@@ -8,6 +8,16 @@
 
 #include "PolySynth.h"
 
+void BasicPolyphonicAllocator::addVoice(Synth synth)
+{
+    PolyVoice v;
+    v.synth = synth;
+    v.currentNote = 0;
+
+    inactiveVoiceQueue.push_back(voiceData.size());
+    voiceData.push_back(v);
+}
+
 void BasicPolyphonicAllocator::noteOn(int note, int velocity)
 {
     int voiceNumber = getNextVoice(note);
@@ -24,7 +34,6 @@ void BasicPolyphonicAllocator::noteOn(int note, int velocity)
     voice.synth.setParameter("polyVelocity", velocity);
     voice.synth.setParameter("polyVoiceNumber", voiceNumber);
 
-    voice.playing = true;
     voice.currentNote = note;
 
     activeVoiceQueue.remove(voiceNumber);
@@ -35,19 +44,18 @@ void BasicPolyphonicAllocator::noteOn(int note, int velocity)
 void BasicPolyphonicAllocator::noteOff(int note)
 {
     // clear the oldest active voice with this note number
-    for (auto iter = activeVoiceQueue.begin(), end = activeVoiceQueue.end(); iter != end; iter++)
+    for (int voiceNumber : activeVoiceQueue)
     {
-        PolyVoice& voice = voiceData[*iter];
-        if (voice.currentNote == note && voice.playing)
+        PolyVoice& voice = voiceData[voiceNumber];
+        if (voice.currentNote == note)
         {
-            cout << ">> " << "Stopping note " << note << " on voice " << voice.voiceNumber << "\n";
+            cout << ">> " << "Stopping note " << note << " on voice " << voiceNumber << "\n";
 
             voice.synth.setParameter("polyGate", 0.0);
-            voice.playing = false;
 
-            activeVoiceQueue.remove(voice.voiceNumber);
-            inactiveVoiceQueue.remove(voice.voiceNumber);
-            inactiveVoiceQueue.push_back(voice.voiceNumber);
+            activeVoiceQueue.remove(voiceNumber);
+            inactiveVoiceQueue.remove(voiceNumber);
+            inactiveVoiceQueue.push_back(voiceNumber);
 
             break;
         }
@@ -88,12 +96,13 @@ int LowestNoteStealingPolyphonicAllocator::getNextVoice(int note)
     // Find the playing voice with the lowest note that's lower than the requested note
     int lowestNote = note;
     int lowestVoice = -1;
-    for (auto& voice : voiceData)
+    for (int voiceNumber : activeVoiceQueue)
     {
+        PolyVoice& voice = voiceData[voiceNumber];
         if (voice.currentNote < lowestNote)
         {
             lowestNote = voice.currentNote;
-            lowestVoice = voice.voiceNumber;
+            lowestVoice = voiceNumber;
         }
     }
 

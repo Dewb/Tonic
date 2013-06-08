@@ -10,11 +10,11 @@
 
 using namespace Tonic;
 
-template<typename VoiceAllocator = LowestNoteStealingPolyphonicAllocator>
-class PolySynth : public Synth
+template<typename VoiceAllocator>
+class PolySynthWithAllocator : public Synth
 {
 public:
-    PolySynth() : Synth() 
+    PolySynthWithAllocator() : Synth() 
     {
         setOutputGen(mixer); 
     }
@@ -53,24 +53,11 @@ public:
     class PolyVoice
     {
     public:
-        bool playing;
         int currentNote;
         Synth synth;
-        int voiceNumber;
     };
 
-    void addVoice(Synth synth)
-    {
-        PolyVoice v;
-        v.voiceNumber = voiceData.size();
-        v.synth = synth;
-        v.playing = false;
-        v.currentNote = 0;
-
-        voiceData.push_back(v);
-        inactiveVoiceQueue.push_back(v.voiceNumber);
-    }
-
+    void addVoice(Synth synth);
     void noteOn(int noteNumber, int velocity);
     void noteOff(int noteNumber);
 
@@ -92,5 +79,7 @@ class LowestNoteStealingPolyphonicAllocator : public BasicPolyphonicAllocator
 protected:
     virtual int getNextVoice(int note);
 };
+
+typedef PolySynthWithAllocator<LowestNoteStealingPolyphonicAllocator> PolySynth;
 
 
