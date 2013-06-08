@@ -8,85 +8,94 @@
 
 #include "PolySynth.h"
 
-PolySynth::PolySynth()
-: Synth()
+void BasicPolyphonicAllocator::noteOn(int note, int velocity)
 {
-	setOutputGen(mixer);
+    int voiceNumber = getNextVoice(note);
+
+    if (voiceNumber < 0)
+        return; // no voice available
+
+    cout << ">> " << "Starting note " << note << " on voice " << voiceNumber << "\n";
+
+    PolyVoice& voice = voiceData[voiceNumber];
+
+    voice.synth.setParameter("polyNote", note);
+    voice.synth.setParameter("polyGate", 1.0);
+    voice.synth.setParameter("polyVelocity", velocity);
+    voice.synth.setParameter("polyVoiceNumber", voiceNumber);
+
+    voice.playing = true;
+    voice.currentNote = note;
+
+    activeVoiceQueue.remove(voiceNumber);
+    activeVoiceQueue.push_back(voiceNumber);
+    inactiveVoiceQueue.remove(voiceNumber);
 }
 
-void PolySynth::addVoice(Synth synth)
+void BasicPolyphonicAllocator::noteOff(int note)
 {
-	VoiceData v;
-	v.voiceNumber = voiceData.size();
-	v.synth = synth;
-	v.playing = false;
-	v.currentNote = 0;
+    // clear the oldest active voice with this note number
+    for (auto iter = activeVoiceQueue.begin(), end = activeVoiceQueue.end(); iter != end; iter++)
+    {
+        PolyVoice& voice = voiceData[*iter];
+        if (voice.currentNote == note && voice.playing)
+        {
+            cout << ">> " << "Stopping note " << note << " on voice " << voice.voiceNumber << "\n";
 
-	voiceData.push_back(v);
-	unusedVoices.push_back(v.voiceNumber);
-	mixer.addInput(v.synth);
+            voice.synth.setParameter("polyGate", 0.0);
+            voice.playing = false;
+
+            activeVoiceQueue.remove(voice.voiceNumber);
+            inactiveVoiceQueue.remove(voice.voiceNumber);
+            inactiveVoiceQueue.push_back(voice.voiceNumber);
+
+            break;
+        }
+    }
 }
 
-void PolySynth::addVoices(VoiceCreateFn createFn, int count)
+int BasicPolyphonicAllocator::getNextVoice(int note)
 {
-	for (int i = 0; i < count; i++)
-		addVoice(createFn());
+    // Find a voice not playing any note
+    if (inactiveVoiceQueue.size())
+    {
+        return inactiveVoiceQueue.front();
+    }
+
+    return -1;
 }
 
-void PolySynth::processMidiNote(int note, int velocity)
+int OldestNoteStealingPolyphonicAllocator::getNextVoice(int note)
 {
-	bool noteOn = velocity > 0;
+    int voice = BasicPolyphonicAllocator::getNextVoice(note);
+    if (voice >= 0)
+        return voice;
 
-	VoiceData* pVoice = getVoiceForNote(note, noteOn);
-	if (!pVoice)
-		return;
-	
-	cout << ">> " << (noteOn ? "Starting" : "Stopping") << " note " << note << " on voice " << pVoice->voiceNumber << "\n";
+    if (activeVoiceQueue.size())
+    {
+        return activeVoiceQueue.front();
+    }
 
-	pVoice->synth.setParameter("polyNote", note);
-	pVoice->synth.setParameter("polyGate", noteOn ? 1.0 : 0.0);
-	pVoice->playing = noteOn;
-	pVoice->currentNote = note;
-
-	if (noteOn)
-	{
-		pVoice->synth.setParameter("polyVelocity", velocity);
-		unusedVoices.remove(pVoice->voiceNumber);
-	}
-	else
-	{
-		unusedVoices.push_back(pVoice->voiceNumber);
-	}
+    return -1;
 }
 
-PolySynth::VoiceData* PolySynth::getVoiceForNote(int note, bool noteOn)
+int LowestNoteStealingPolyphonicAllocator::getNextVoice(int note)
 {
-	if (!noteOn) 
-	{
-		// Find the voice already playing this note
-		for (auto& voice : voiceData)
-			if (voice.currentNote == note && voice.playing)
-				return &voice;
+    int voice = BasicPolyphonicAllocator::getNextVoice(note);
+    if (voice >= 0)
+        return voice;
 
-		return nullptr;
-	}
+    // Find the playing voice with the lowest note that's lower than the requested note
+    int lowestNote = note;
+    int lowestVoice = -1;
+    for (auto& voice : voiceData)
+    {
+        if (voice.currentNote < lowestNote)
+        {
+            lowestNote = voice.currentNote;
+            lowestVoice = voice.voiceNumber;
+        }
+    }
 
-	// Find a voice not playing any note
-	if (unusedVoices.size())
-	{
-		int num = unusedVoices.front();
-		unusedVoices.pop_front();
-		return &(voiceData[num]);
-	}
-
-	// Find the lowest playing note
-	int lowestNote = INT_MAX;
-	for (auto& voice : voiceData)
-		if (voice.currentNote < lowestNote)
-			lowestNote = voice.currentNote;
-	for (auto& voice : voiceData)
-		if (voice.currentNote == lowestNote)
-			return &voice;
-
-	return nullptr;
+    return lowestVoice;
 }
