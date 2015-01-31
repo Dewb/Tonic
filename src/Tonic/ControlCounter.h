@@ -3,14 +3,13 @@
 //  Tonic 
 //
 //  Created by Morgan Packard on 4/15/13.
-//  Copyright (c) 2013 Morgan Packard. All rights reserved.
 //
 // See LICENSE.txt for license and usage information.
 //
 
 
-#ifndef __Tonic__ControlCounter__
-#define __Tonic__ControlCounter__
+#ifndef TONIC_CONTROLCOUNTER_H
+#define TONIC_CONTROLCOUNTER_H
 
 #include "ControlGenerator.h"
 
@@ -34,18 +33,30 @@ namespace Tonic {
       
     };
     
+    inline void ControlCounter_::computeOutput(const SynthesisContext_ & context){
+      ControlGeneratorOutput tickOut = trigger.tick(context);
+      ControlGeneratorOutput endOut = end.tick(context);
+      output_.triggered = tickOut.triggered;
+      if (tickOut.triggered) {
+        output_.value += 1;
+        if(output_.value > endOut.value){
+          output_.value = 0;
+        }
+      }
+    }
+    
   }
   
   class ControlCounter : public TemplatedControlGenerator<Tonic_::ControlCounter_>{
     
   public:
   
-    createControlGeneratorSetters(ControlCounter, trigger, setTrigger);
-    createControlGeneratorSetters(ControlCounter, end, setEnd);
+    TONIC_MAKE_CTRL_GEN_SETTERS(ControlCounter, trigger, setTrigger);
+    TONIC_MAKE_CTRL_GEN_SETTERS(ControlCounter, end, setEnd);
 
   };
 }
 
-#endif /* defined(__Tonic__ControlCounter__) */
+#endif
 
 

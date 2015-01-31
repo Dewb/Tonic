@@ -19,11 +19,10 @@ namespace Tonic{
     ControlGenerator_::ControlGenerator_() :
       lastFrameIndex_(0)
     {
-      TONIC_MUTEX_INIT(&genMutex_);
     }
 
-    ControlGenerator_::~ControlGenerator_(){
-      TONIC_MUTEX_DESTROY(&genMutex_);
+    ControlGenerator_::~ControlGenerator_()
+    {
     }
     
     ControlGeneratorOutput ControlGenerator_::initialOutput(){
@@ -33,7 +32,7 @@ namespace Tonic{
     
   }
   RampedValue ControlGenerator::smoothed(float length){
-    return RampedValue( mGen->initialOutput().value, length ).target(*this);
+    return RampedValue( obj->initialOutput().value, length ).target(*this);
   }
   
 }

@@ -5,7 +5,8 @@
 //  Created by Nick Donaldson on 2/20/13.
 
 //
-
+// See LICENSE.txt for license and usage information.
+//
 #ifndef TonicDemo_FilterUtils_h
 #define TonicDemo_FilterUtils_h
 
@@ -35,7 +36,7 @@ namespace Tonic {
   }
 
   //! Compute coefficients from analog prototype using bilinear transform
-  /*
+  /*!
       Analog transfer function (laplace domain) should look like:
  
               b2 s^2 + b1 s + b0
@@ -138,7 +139,7 @@ namespace Tonic {
 #endif
 
 #ifdef TONIC_DEBUG
-    if(frames(0,0) != frames(0,0)){
+    if(outFrames(0,0) != outFrames(0,0)){
       Tonic::error("Biquad::filter NaN detected.", false);
     }
 #endif

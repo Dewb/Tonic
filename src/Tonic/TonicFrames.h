@@ -9,10 +9,11 @@
 //
 
 
-#ifndef __Tonic__TonicFrames__
-#define __Tonic__TonicFrames__
+#ifndef TONIC_TONICFRAMES_H
+#define TONIC_TONICFRAMES_H
 
 #include "TonicCore.h"
+#include <sstream>
 
 /*
   This is an almost exact copy of STKFrames. Many thanks to Perry Cook and Gary Scavone.
@@ -118,7 +119,7 @@ namespace Tonic {
       If destination has more channels than source, they will be copied to all channels.
     */
     void copy( TonicFrames & f );
-    
+        
     //! Return an interpolated value at the fractional frame index and channel.
     /*!
       This function performs linear interpolation.  The \c frame
@@ -144,6 +145,7 @@ namespace Tonic {
     */
     void resize( size_t nFrames, unsigned int nChannels = 1 );
 
+
     //! Resize self to represent the specified number of channels and frames and perform element initialization.
     /*!
       Changes the size of self based on the number of frames and
@@ -153,12 +155,15 @@ namespace Tonic {
       smaller or equal to a previously allocated size.
     */
     void resize( size_t nFrames, unsigned int nChannels, TonicFloat value );
+    
+    //! Resize and stretch/shrink existing data to fit new size.
+    void resample( size_t nFrames , unsigned int nChannels );
 
     //! Return the number of channels represented by the data.
     inline unsigned int channels( void ) const { return nChannels_; };
 
     //! Return the number of sample frames represented by the data.
-    inline unsigned int frames( void ) const { return nFrames_; };
+    inline unsigned long frames( void ) const { return nFrames_; };
 
     //! Set the sample rate associated with the TonicFrames data.
     /*!
@@ -197,7 +202,7 @@ namespace Tonic {
     if ( n >= size_ ) {
       std::ostringstream error;
       error << "TonicFrames::operator[]: invalid index (" << n << ") value!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
   #endif
 
@@ -210,7 +215,7 @@ namespace Tonic {
     if ( n >= size_ ) {
       std::ostringstream error;
       error << "TonicFrames::operator[]: invalid index (" << n << ") value!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
   #endif
 
@@ -223,7 +228,7 @@ namespace Tonic {
     if ( frame >= nFrames_ || channel >= nChannels_ ) {
       std::ostringstream error;
       error << "TonicFrames::operator(): invalid frame (" << frame << ") or channel (" << channel << ") value!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
   #endif
 
@@ -236,7 +241,7 @@ namespace Tonic {
     if ( frame >= nFrames_ || channel >= nChannels_ ) {
       std::ostringstream error;
       error << "TonicFrames::operator(): invalid frame (" << frame << ") or channel (" << channel << ") value!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
   #endif
 
@@ -250,7 +255,7 @@ namespace Tonic {
     TonicFloat *dptr = data_ + dst;
     unsigned int stride = nChannels_;
     
-    vcopy(dptr, stride, sptr, stride, nFrames_);
+    vcopy(dptr, stride, sptr, stride, (unsigned int)nFrames_);
 
   }
 
@@ -271,7 +276,7 @@ namespace Tonic {
     if ( f.frames() != nFrames_) {
       std::ostringstream error;
       error << "TonicFrames::operator+=: frames argument must be of equal dimensions!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
 #endif
     
@@ -303,7 +308,7 @@ namespace Tonic {
     }
     else{
       // just copy one channel, then fill
-      vcopy(dptr, nChannels_, fptr, fChannels, nFrames_);
+      vcopy(dptr, nChannels_, fptr, fChannels, (unsigned int)nFrames_);
       
       // fill all channels if necessary
       fillChannels();
@@ -317,7 +322,7 @@ namespace Tonic {
     if ( f.frames() != nFrames_ ) {
       std::ostringstream error;
       error << "TonicFrames::operator+=: frames argument must be of equal dimensions!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
   #endif
     
@@ -371,7 +376,7 @@ namespace Tonic {
     if ( f.frames() != nFrames_ ) {
       std::ostringstream error;
       error << "TonicFrames::operator+=: frames argument must be of equal dimensions!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
   #endif
 
@@ -427,7 +432,7 @@ namespace Tonic {
     if ( f.frames() != nFrames_) {
       std::ostringstream error;
       error << "TonicFrames::operator+=: frames argument must be of equal dimensions!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
 #endif
     
@@ -481,7 +486,7 @@ namespace Tonic {
     if ( f.frames() != nFrames_ ) {
       std::ostringstream error;
       error << "TonicFrames::operator*=: frames argument must be of equal dimensions!";
-      Stk::handleError( error.str(), StkError::MEMORY_ACCESS );
+      Tonic::error(error.str(), true);
     }
   #endif
     
@@ -530,4 +535,4 @@ namespace Tonic {
   
 }
 
-#endif /* defined(__Tonic__TonicFrames__) */
+#endif

@@ -9,17 +9,17 @@
 //
 
 
-#ifndef __Tonic__ControlPulse__
-#define __Tonic__ControlPulse__
+#ifndef TONIC_CONTROLPULSE_H
+#define TONIC_CONTROLPULSE_H
 
-#include "ControlConditioner.h"
+#include "ControlGenerator.h"
 
 namespace Tonic {
   
   namespace Tonic_ {
     
 
-    class ControlPulse_ : public ControlConditioner_{
+    class ControlPulse_ : public ControlGenerator_ {
       
     protected:
       void computeOutput(const SynthesisContext_ & context);
@@ -32,30 +32,61 @@ namespace Tonic {
       ControlPulseState state_;
       double lastOnTime_;
       
+      ControlGenerator triggerGen_;
       ControlGenerator pulseLengthGen_;
       
     public:
       
-      ControlPulse_();      
+      ControlPulse_();
+      
+      void setTriggerGen( ControlGenerator gen ){ triggerGen_ = gen; };
       void setPulseLengthGen( ControlGenerator gen ){ pulseLengthGen_ = gen; };
     
     };
     
-  }
-  
-  class ControlPulse : public TemplatedControlConditioner<ControlPulse, Tonic_::ControlPulse_>{
-    
-  public:
-    
-    ControlPulse(float length = 0.1){
-      gen()->setPulseLengthGen(ControlValue(length));
+    inline   void ControlPulse_::computeOutput(const SynthesisContext_ & context){
+      
+      ControlGeneratorOutput tickIn = triggerGen_.tick(context);
+      ControlGeneratorOutput lengthIn = pulseLengthGen_.tick(context);
+      
+      output_.triggered = false;
+      
+      // every time input changes, reset status, start new pulse
+      if (tickIn.triggered){
+        state_ = ControlPulseStateOn;
+        lastOnTime_ = context.elapsedTime;
+        output_.triggered = true;
+        output_.value = 1.0f;
+      }
+      else if (state_ == ControlPulseStateOn){
+        
+        double tDiff = context.elapsedTime - lastOnTime_;
+        
+        if (tDiff < 0 || tDiff >= max(0,lengthIn.value)){
+          state_ = ControlPulseStateOff;
+          output_.value = 0.0f;
+          output_.triggered = true;
+        }
+      }
+      
     }
     
-    createControlGeneratorSetters(ControlPulse, length, setPulseLengthGen);
+  }
+  
+  class ControlPulse : public TemplatedControlGenerator<Tonic_::ControlPulse_> {
     
+    public:
+      
+      ControlPulse(float length = 0.1){
+        gen()->setPulseLengthGen(ControlValue(length));
+      }
+    
+      TONIC_MAKE_CTRL_GEN_SETTERS(ControlPulse, trigger, setTriggerGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(ControlPulse, length, setPulseLengthGen);
+      
   };
 }
 
-#endif /* defined(__Tonic__ControlPulse__) */
+#endif
 
 

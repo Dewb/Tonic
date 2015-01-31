@@ -3,14 +3,13 @@
 //  Tonic 
 //
 //  Created by Nick Donaldson on 5/14/13.
-//  Copyright (c) 2013 Nick Donaldson. All rights reserved.
 //
 // See LICENSE.txt for license and usage information.
 //
 
 
-#ifndef __Tonic__ControlParameter__
-#define __Tonic__ControlParameter__
+#ifndef TONIC_CONTROLPARAMETER_H
+#define TONIC_CONTROLPARAMETER_H
 
 #include "ControlValue.h"
 
@@ -48,7 +47,7 @@ namespace Tonic {
       
       ControlParameter_();
       
-      void        setName( string name ) { name = name_; };
+      void        setName( string name ) { name_ = name; };
       string      getName() { return name_; };
       
       void        setDisplayName( string displayName ) { displayName_ = displayName; };
@@ -76,9 +75,7 @@ namespace Tonic {
   class ControlParameter : public TemplatedControlGenerator<Tonic_::ControlParameter_>{
     
   public:
-    
-    ControlParameter(string name = "");
-    
+        
     string              getName();
     ControlParameter &  name(string name);
     
@@ -107,6 +104,6 @@ namespace Tonic {
   };
 }
 
-#endif /* defined(__Tonic__ControlParameter__) */
+#endif
 
 

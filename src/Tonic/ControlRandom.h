@@ -34,6 +34,20 @@ namespace Tonic_{
     void setMin(ControlGenerator minArg){min = minArg;};
     void setTrigger(ControlGenerator arg){trigger = arg;}
   };
+  
+  inline void ControlRandom_::computeOutput(const SynthesisContext_ & context){
+    ControlGeneratorOutput minOut = min.tick(context);
+    ControlGeneratorOutput maxOut = max.tick(context);
+    
+    bool outInRange =  (output_.value >= minOut.value) && (output_.value <= maxOut.value);
+    
+    if(!outInRange || trigger.tick(context).triggered){
+      output_.triggered = true;
+      output_.value = randomFloat(minOut.value, maxOut.value);
+    }else{
+      output_.triggered = false;
+    }
+  }
 
 }
 
@@ -43,9 +57,9 @@ namespace Tonic_{
 
   class ControlRandom : public TemplatedControlGenerator<Tonic_::ControlRandom_>{
   public:
-    createControlGeneratorSetters(ControlRandom, max, setMax)
-    createControlGeneratorSetters(ControlRandom, min, setMin)
-    createControlGeneratorSetters(ControlRandom, trigger, setTrigger)
+    TONIC_MAKE_CTRL_GEN_SETTERS(ControlRandom, max, setMax)
+    TONIC_MAKE_CTRL_GEN_SETTERS(ControlRandom, min, setMin)
+    TONIC_MAKE_CTRL_GEN_SETTERS(ControlRandom, trigger, setTrigger)
   };
 
 }

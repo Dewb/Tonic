@@ -13,6 +13,7 @@
 # OS X temporary files that should never be committed
 
 .DS_Store
+.idea
 *.swp
 *.lock
 profile
@@ -67,7 +68,7 @@ build/
 #
 
 xcuserdata
-
+*.xccheckout
 ####
 # XCode 4 workspaces - more detailed
 #
@@ -129,6 +130,11 @@ Release/
 # TONIC-SPECIFIC
 lib/osx/
 lib/iOS/
+
+####
+# Linux object files
+
+*.o
 
 ####
 # UNKNOWN: recommended by others, but I can't discover what these files are

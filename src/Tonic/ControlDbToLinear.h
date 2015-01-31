@@ -9,8 +9,8 @@
 //
 
 
-#ifndef __Tonic__ControlDbToLinear__
-#define __Tonic__ControlDbToLinear__
+#ifndef TONIC_CONTROLDBTOLINEAR_H
+#define TONIC_CONTROLDBTOLINEAR_H
 
 #include "ControlConditioner.h"
 
@@ -26,6 +26,16 @@ namespace Tonic {
       
     };
     
+    inline void ControlDbToLinear_::computeOutput(const SynthesisContext_ & context){
+      
+      ControlGeneratorOutput inputOutput = input_.tick(context);
+      output_.triggered = inputOutput.triggered;
+      if (inputOutput.triggered){
+        output_.value = dBToLin(inputOutput.value);
+      }
+      
+    }
+    
   }
   
   class ControlDbToLinear : public TemplatedControlConditioner<ControlDbToLinear, Tonic_::ControlDbToLinear_>{
@@ -35,6 +45,6 @@ namespace Tonic {
   };
 }
 
-#endif /* defined(__Tonic__ControlDbToLinear__) */
+#endif
 
 

@@ -9,8 +9,8 @@
 //
 
 
-#ifndef __Tonic__ControlStepper__
-#define __Tonic__ControlStepper__
+#ifndef TONIC_CONTROLSTEPPER_H
+#define TONIC_CONTROLSTEPPER_H
 
 #include "ControlGenerator.h"
 
@@ -34,13 +34,40 @@ namespace Tonic {
       
     public:
       ControlStepper_();
-      ~ControlStepper_();
       void setStart(ControlGenerator arg){start = arg;}
       void setEnd(ControlGenerator arg){end = arg;}
       void setStep(ControlGenerator arg){step = arg;}
       void setTigger(ControlGenerator arg){trigger = arg;}
       void setBidirectional(ControlGenerator arg){bidirectional = arg;}
     };
+    
+    inline void ControlStepper_::computeOutput(const SynthesisContext_ & context){
+      float startVal = start.tick(context).value;
+      float endVal = end.tick(context).value;
+      float stepVal = step.tick(context).value;
+      bool bi = bidirectional.tick(context).value;
+      
+      output_.triggered = trigger.tick(context).triggered;
+      if(hasBeenTriggered){
+        if(output_.triggered){
+          output_.value += stepVal * direction;
+          if (output_.value <= startVal) {
+            output_.value = startVal;
+            direction = 1;
+          }else if(output_.value >= endVal){
+            if(bi){
+              direction = -1;
+            }else{
+              output_.value = startVal;
+            }
+          }
+        }
+      } else{
+        // So first tick will output start value, even if it hasn't been triggered yet
+        output_.value = startVal;
+        hasBeenTriggered = true;
+      }
+    }
     
   }
   
@@ -51,15 +78,15 @@ namespace Tonic {
     
   public:
   
-  createControlGeneratorSetters(ControlStepper, start, setStart);
-  createControlGeneratorSetters(ControlStepper, end, setEnd);
-  createControlGeneratorSetters(ControlStepper, step, setStep);
-  createControlGeneratorSetters(ControlStepper, trigger, setTigger);
-  createControlGeneratorSetters(ControlStepper, bidirectional, setBidirectional);
+  TONIC_MAKE_CTRL_GEN_SETTERS(ControlStepper, start, setStart);
+  TONIC_MAKE_CTRL_GEN_SETTERS(ControlStepper, end, setEnd);
+  TONIC_MAKE_CTRL_GEN_SETTERS(ControlStepper, step, setStep);
+  TONIC_MAKE_CTRL_GEN_SETTERS(ControlStepper, trigger, setTigger);
+  TONIC_MAKE_CTRL_GEN_SETTERS(ControlStepper, bidirectional, setBidirectional);
 
   };
 }
 
-#endif /* defined(__Tonic__ControlStepper__) */
+#endif
 
 

@@ -9,8 +9,8 @@
 //
 
 
-#ifndef __Tonic__Compressor__
-#define __Tonic__Compressor__
+#ifndef TONIC_COMPRESSOR_H
+#define TONIC_COMPRESSOR_H
 
 #include "Effect.h"
 #include "DelayUtils.h"
@@ -196,32 +196,26 @@ namespace Tonic {
 
     //! Input for audio to be compressed
     Compressor & audioInput( Generator input ){
-      this->gen()->lockMutex();
       this->gen()->setInput( input );
-      this->gen()->unlockMutex();
       return *this;
     }
     
     //! Input for audio for compression amplitude envelope
     Compressor & sidechainInput( Generator input ){
-      this->gen()->lockMutex();
       this->gen()->setAmplitudeInput(input);
-      this->gen()->unlockMutex();
       return *this;
     }
     
     void setIsStereo( bool isStereo ){
-      this->gen()->lockMutex();
       this->gen()->setIsStereo(isStereo);
-      this->gen()->unlockMutex();
     }
     
-    createControlGeneratorSetters(Compressor, attack, setAttack);
-    createControlGeneratorSetters(Compressor, release, setRelease);
-    createControlGeneratorSetters(Compressor, threshold, setThreshold); // LINEAR - use dBToLin to convert from dB
-    createControlGeneratorSetters(Compressor, ratio, setRatio);
-    createControlGeneratorSetters(Compressor, lookahead, setLookahead);
-    createControlGeneratorSetters(Compressor, makeupGain, setMakeupGain);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Compressor, attack, setAttack);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Compressor, release, setRelease);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Compressor, threshold, setThreshold); // LINEAR - use dBToLin to convert from dB
+    TONIC_MAKE_CTRL_GEN_SETTERS(Compressor, ratio, setRatio);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Compressor, lookahead, setLookahead);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Compressor, makeupGain, setMakeupGain);
 
 
     // TODO: option for RMS
@@ -237,20 +231,18 @@ namespace Tonic {
     Limiter();
     
     void setIsStereo( bool isStereo ){
-      this->gen()->lockMutex();
       this->gen()->setIsStereo(isStereo);
-      this->gen()->unlockMutex();
     }
     
-    createControlGeneratorSetters(Limiter, release, setRelease);
-    createControlGeneratorSetters(Limiter, threshold, setThreshold);
-    createControlGeneratorSetters(Limiter, lookahead, setLookahead);
-    createControlGeneratorSetters(Limiter, makeupGain, setMakeupGain);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Limiter, release, setRelease);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Limiter, threshold, setThreshold);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Limiter, lookahead, setLookahead);
+    TONIC_MAKE_CTRL_GEN_SETTERS(Limiter, makeupGain, setMakeupGain);
     
   };
 
 }
 
-#endif /* defined(__Tonic__Compressor__) */
+#endif
 
 

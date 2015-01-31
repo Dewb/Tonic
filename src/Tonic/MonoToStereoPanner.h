@@ -9,8 +9,8 @@
 //
 
 
-#ifndef __Tonic__MonoToStereoPanner__
-#define __Tonic__MonoToStereoPanner__
+#ifndef TONIC_MONOTOSTEREOPANNER_H
+#define TONIC_MONOTOSTEREOPANNER_H
 
 #include <iostream>
 #include "Effect.h"
@@ -56,12 +56,12 @@ namespace Tonic {
     
     public:
       // pan is a -1 to 1 value
-      createControlGeneratorSetters(MonoToStereoPanner, pan, setPan);
+      TONIC_MAKE_CTRL_GEN_SETTERS(MonoToStereoPanner, pan, setPan);
 
   };
   
 }
 
-#endif /* defined(__Tonic__MonoToStereoPanner__) */
+#endif
 
 

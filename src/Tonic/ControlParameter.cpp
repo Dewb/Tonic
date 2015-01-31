@@ -3,7 +3,6 @@
 //  Tonic
 //
 //  Created by Nick Donaldson on 5/14/13.
-//  Copyright (c) 2013 Nick Donaldson. All rights reserved.
 //
 
 #include "ControlParameter.h"
@@ -42,9 +41,6 @@ namespace Tonic { namespace Tonic_{
   
 } // Namespace Tonic_
   
-  ControlParameter::ControlParameter(string name){
-    gen()->setName(name);
-  }
 
   string ControlParameter::getName(){
     return gen()->getName();

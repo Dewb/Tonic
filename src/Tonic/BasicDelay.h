@@ -9,8 +9,8 @@
 //
 
 
-#ifndef __Tonic__BasicDelay__
-#define __Tonic__BasicDelay__
+#ifndef TONIC_BASICDELAY_H
+#define TONIC_BASICDELAY_H
 
 #include "Effect.h"
 #include "DelayUtils.h"
@@ -19,7 +19,7 @@ namespace Tonic {
   
   namespace Tonic_ {
 
-    class BasicDelay_ : public Effect_{
+    class BasicDelay_ : public WetDryEffect_{
       
     protected:
       
@@ -82,20 +82,20 @@ namespace Tonic {
   }
   
   
-  class BasicDelay : public TemplatedEffect<BasicDelay, Tonic_::BasicDelay_>{
+  class BasicDelay : public TemplatedWetDryEffect<BasicDelay, Tonic_::BasicDelay_>{
     
   public:
     //! Allocating only with time argument will default max delay time to 1.5 * delayTime
     BasicDelay(float initialDelayTime = 0.5f, float maxDelayTime = -1);
     
-    createGeneratorSetters(BasicDelay, delayTime, setDelayTimeGen);
+    TONIC_MAKE_GEN_SETTERS(BasicDelay, delayTime, setDelayTimeGen);
     
     //! Warning: Feedback input is NOT clamped! Beware of feedback values greater than 1 !!!
-    createGeneratorSetters(BasicDelay, feedback, setFeedbackGen);
+    TONIC_MAKE_GEN_SETTERS(BasicDelay, feedback, setFeedbackGen);
 
   };
 }
 
-#endif /* defined(__Tonic__BasicDelay__) */
+#endif
 
 

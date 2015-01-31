@@ -3,25 +3,14 @@
 //  Tonic 
 //
 //  Created by Nick Donaldson on 5/4/13.
-//  Copyright (c) 2013 Nick Donaldson. All rights reserved.
 //
 
-/*+++++++++++++++++++++ License ++++++++++++++++++++
+//
+// See LICENSE.txt for license and usage information.
+//
 
-Use this code for whatever you want. There are NO 
-RESTRICTIONS WHATSOVER. Modify it, repackage it, 
-sell it, get rich from it, whatever. Go crazy. If 
-you want to make mehappy, contribute to this 
-project, but feel free to just use the code as a 
-starting point for whatever you like.
-
-Note that Tonic is heavily indebted to STK
-https://ccrma.stanford.edu/software/stk/
-
-++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-#ifndef __Tonic__Reverb__
-#define __Tonic__Reverb__
+#ifndef TONIC_REVERB_H
+#define TONIC_REVERB_H
 
 #include "Effect.h"
 #include "DelayUtils.h"
@@ -34,7 +23,10 @@ namespace Tonic {
   
   namespace Tonic_ {
     
-    //! Allpass filter for use with reverb
+    //! Allpass filter for use with reverb.
+    /*!
+        This is not a Generator_ subclass and is optimized for the purposes of the Reverb_ class.
+    */
     class ImpulseDiffuserAllpass {
       
     protected:
@@ -72,15 +64,20 @@ namespace Tonic {
     
     //! Moorer-Schroeder style Artificial Reverb effect
     /*!
-        - [x] Pre-delay
-        - [x] Input filter
-        - [x] Early reflection taps
-        - [x] Decay time and decay filtering
-        - [x] Variable "Room size"
-        - [x] Variable stereo width
+        - Pre-delay
+        - Input filter
+        - Early reflection taps
+        - Decay time and decay filtering
+        - Variable "Room size"
+        - Variable stereo width
+     
+        TODO:
+        - Reverb fb comb cutoff setting parameters should be normalized value, not Hz. Not a "true" cutoff.
+        - Highpass portion of fb comb filter is too wide. Should be LPF24.
+        - More deterministic early reflection time scattering.
      */
     
-    class Reverb_ : public Effect_
+    class Reverb_ : public WetDryEffect_
     {
       protected:
       
@@ -217,51 +214,51 @@ namespace Tonic {
         
   }
   
-  class Reverb : public TemplatedEffect<Reverb, Tonic_::Reverb_>
+  class Reverb : public TemplatedWetDryEffect<Reverb, Tonic_::Reverb_>
   {
 
     public:
         
       //! Initial delay before passing through reverb
-      createControlGeneratorSetters(Reverb, preDelayTime, setPreDelayTimeCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, preDelayTime, setPreDelayTimeCtrlGen);
     
       //! Non-zero value will disable input filtering
-      createControlGeneratorSetters(Reverb, bypassInputFilter, setInputFiltBypassCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, bypassInputFilter, setInputFiltBypassCtrlGen);
     
       //! Value in Hz of cutoff for input LPF
-      createControlGeneratorSetters(Reverb, inputLPFCutoff, setInputLPFCutoffCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, inputLPFCutoff, setInputLPFCutoffCtrlGen);
     
       //! Value in Hz of cutoff for input HPF
-      createControlGeneratorSetters(Reverb, inputHPFCutoff, setInputHPFCutoffCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, inputHPFCutoff, setInputHPFCutoffCtrlGen);
     
       //! Value 0-1, affects number of early reflections
-      createControlGeneratorSetters(Reverb, density, setDensityCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, density, setDensityCtrlGen);
     
       //! Value 0-1, affects distribution of early reflections.
       /*!
           0 is perfectly square room
           1 is long, narrow room
       */
-      createControlGeneratorSetters(Reverb, roomShape, setRoomShapeCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, roomShape, setRoomShapeCtrlGen);
     
       //! Value 0-1, affects spacing of early reflections
-      createControlGeneratorSetters(Reverb, roomSize, setRoomSizeCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, roomSize, setRoomSizeCtrlGen);
     
       //! Value in seconds of overall decay time
-      createControlGeneratorSetters(Reverb, decayTime, setDecayTimeCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, decayTime, setDecayTimeCtrlGen);
     
       //! Value in Hz of cutoff of decay LPF
-      createControlGeneratorSetters(Reverb, decayLPFCutoff, setDecayLPFCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, decayLPFCutoff, setDecayLPFCtrlGen);
     
       //! Value in Hz of cutoff of decay HPF
-      createControlGeneratorSetters(Reverb, decayHPFCutoff, setDecayHPFCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, decayHPFCutoff, setDecayHPFCtrlGen);
 
       //! Value 0-1 for stereo width
-      createControlGeneratorSetters(Reverb, stereoWidth, setStereoWidthCtrlGen);
+      TONIC_MAKE_CTRL_GEN_SETTERS(Reverb, stereoWidth, setStereoWidthCtrlGen);
     
   };
 }
 
-#endif /* defined(__Tonic__Reverb__) */
+#endif
 
 
